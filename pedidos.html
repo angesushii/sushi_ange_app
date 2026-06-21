@@ -631,6 +631,83 @@
       .horario-config-grid { grid-template-columns: 1fr; }
     }
 
+
+    .notificaciones-card {
+      background: #111;
+      color: white;
+      border-radius: var(--radio);
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--sombra);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .notificaciones-card h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .notificaciones-card .muted {
+      color: #e7e7e7;
+    }
+
+    .notificaciones-btn {
+      background: linear-gradient(135deg, #25D366, #128C7E);
+      color: white;
+      white-space: nowrap;
+    }
+
+    .notificaciones-btn.off {
+      background: linear-gradient(135deg, #777, #444);
+    }
+
+    .nuevo-pedido-toast {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-120%);
+      width: min(92vw, 430px);
+      background: linear-gradient(135deg, var(--rojo), var(--rojo-oscuro));
+      color: white;
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 18px 40px rgba(0,0,0,.28);
+      z-index: 9999;
+      opacity: 0;
+      transition: transform .25s ease, opacity .25s ease;
+      border: 1px solid rgba(255,255,255,.18);
+    }
+
+    .nuevo-pedido-toast.active {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .nuevo-pedido-toast strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 6px;
+    }
+
+    .nuevo-pedido-toast span {
+      display: block;
+      line-height: 1.35;
+      font-weight: 800;
+    }
+
+    @media (max-width: 760px) {
+      .notificaciones-card {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .notificaciones-btn {
+        width: 100%;
+      }
+    }
+
     .hidden { display: none; }
 
     @media (max-width: 760px) {
@@ -650,6 +727,7 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
 </head>
 <body>
+  <div id="nuevoPedidoToast" class="nuevo-pedido-toast"></div>
   <header>
     <h1>Pedidos</h1>
     <p>Lista simple de pedidos de Sushi Ange</p>
@@ -659,6 +737,14 @@
 
 
     <section id="panel" class="hidden">
+
+      <section class="notificaciones-card">
+        <div>
+          <h2>🔔 Notificaciones</h2>
+          <div id="notificacionesStatus" class="muted">Sonido activado para pedidos nuevos mientras esta app esté abierta.</div>
+        </div>
+        <button type="button" id="notificacionesBtn" class="notificaciones-btn" onclick="toggleNotificacionesPedidos()">🔔 Activadas</button>
+      </section>
 
       <section class="ingredientes-admin-card">
         <div class="ingredientes-admin-head" onclick="toggleIngredientesPanel()">
@@ -807,6 +893,10 @@
     let vistaActiva = "pendientes";
     let unsubscribePedidos = null;
     let intervaloRespaldoPedidos = null;
+    let pedidosYaVistos = new Set();
+    let primeraCargaPedidos = true;
+    let notificacionesActivas = localStorage.getItem("notificacionesPedidosActivas") !== "false";
+    let ultimoToastTimeout = null;
 
 
     const INGREDIENTES_BASE = [
@@ -1108,6 +1198,75 @@
 
     function formatCLP(valor) {
       return "$" + Number(valor || 0).toLocaleString("es-CL");
+    }
+
+    function actualizarUIBotonNotificaciones() {
+      const btn = document.getElementById("notificacionesBtn");
+      const status = document.getElementById("notificacionesStatus");
+
+      if (btn) {
+        btn.textContent = notificacionesActivas ? "🔔 Activadas" : "🔕 Desactivadas";
+        btn.classList.toggle("off", !notificacionesActivas);
+      }
+
+      if (status) {
+        status.textContent = notificacionesActivas
+          ? "Sonido activado para pedidos nuevos mientras esta app esté abierta."
+          : "Sonido desactivado. Los pedidos seguirán actualizándose normalmente.";
+      }
+    }
+
+    window.toggleNotificacionesPedidos = function toggleNotificacionesPedidos() {
+      notificacionesActivas = !notificacionesActivas;
+      localStorage.setItem("notificacionesPedidosActivas", String(notificacionesActivas));
+      actualizarUIBotonNotificaciones();
+
+      if (notificacionesActivas) {
+        reproducirSonidoNuevoPedido();
+      }
+    };
+
+    function reproducirSonidoNuevoPedido() {
+      try {
+        const audio = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
+        audio.volume = 1;
+        audio.play().catch(() => {});
+      } catch (error) {
+        console.warn("No se pudo reproducir el sonido de notificación:", error);
+      }
+    }
+
+    function mostrarToastNuevoPedido(pedido) {
+      const toast = document.getElementById("nuevoPedidoToast");
+      if (!toast) return;
+
+      toast.innerHTML = `
+        <strong>🍣 Nuevo pedido recibido</strong>
+        <span>Cliente: ${pedido.cliente || "Cliente no indicado"}</span>
+        <span>Total: ${formatCLP(pedido.total)}</span>
+      `;
+
+      toast.classList.add("active");
+
+      if (ultimoToastTimeout) {
+        clearTimeout(ultimoToastTimeout);
+      }
+
+      ultimoToastTimeout = setTimeout(() => {
+        toast.classList.remove("active");
+      }, 5200);
+    }
+
+    function notificarNuevoPedido(pedido) {
+      if (!notificacionesActivas) return;
+
+      reproducirSonidoNuevoPedido();
+
+      if (navigator.vibrate) {
+        navigator.vibrate([300, 120, 300]);
+      }
+
+      mostrarToastNuevoPedido(pedido);
     }
 
 function limpiarIngrediente(nombre) {
@@ -1604,15 +1763,24 @@ Gracias por preferir Sushi Ange ❤️`;
       pedidosGlobales = [];
 
       snap.forEach(docSnap => {
-        pedidosGlobales.push({
+        const pedido = {
           id: docSnap.id,
           ...docSnap.data()
-        });
+        };
+
+        pedidosGlobales.push(pedido);
+
+        if (!primeraCargaPedidos && !pedidosYaVistos.has(pedido.id)) {
+          notificarNuevoPedido(pedido);
+        }
       });
 
       pedidosDiaActual = pedidosGlobales.filter(
         data => obtenerFechaLocalPedido(data) === fechaSeleccionada
       );
+
+      pedidosGlobales.forEach(p => pedidosYaVistos.add(p.id));
+      primeraCargaPedidos = false;
 
       actualizarBotonesSeleccion();
       renderPedidosDia();
@@ -1703,6 +1871,7 @@ const loginBox = document.getElementById("loginBox");
 if (loginBox) loginBox.classList.add("hidden");
 
 document.getElementById("panel").classList.remove("hidden");
+actualizarUIBotonNotificaciones();
 cargarIngredientesAdmin();
 cargarHorarioAdmin();
 cargarPedidos();
