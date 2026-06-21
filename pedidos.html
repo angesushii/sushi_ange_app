@@ -897,6 +897,8 @@
     let primeraCargaPedidos = true;
     let notificacionesActivas = localStorage.getItem("notificacionesPedidosActivas") !== "false";
     let ultimoToastTimeout = null;
+    let audioNotificacion = null;
+    let audioDesbloqueado = false;
 
 
     const INGREDIENTES_BASE = [
@@ -1211,7 +1213,7 @@
 
       if (status) {
         status.textContent = notificacionesActivas
-          ? "Sonido activado para pedidos nuevos mientras esta app esté abierta."
+          ? "Sonido preparado para pedidos nuevos mientras esta app esté abierta. Vibración: depende del iPhone."
           : "Sonido desactivado. Los pedidos seguirán actualizándose normalmente.";
       }
     }
@@ -1222,15 +1224,46 @@
       actualizarUIBotonNotificaciones();
 
       if (notificacionesActivas) {
-        reproducirSonidoNuevoPedido();
+        desbloquearAudioIOS();
       }
     };
 
+    function inicializarAudioNotificaciones() {
+      if (audioNotificacion) return;
+
+      audioNotificacion = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
+      audioNotificacion.preload = "auto";
+      audioNotificacion.volume = 1;
+    }
+
+    function desbloquearAudioIOS() {
+      inicializarAudioNotificaciones();
+
+      if (audioDesbloqueado) return;
+
+      audioNotificacion.play()
+        .then(() => {
+          audioNotificacion.pause();
+          audioNotificacion.currentTime = 0;
+          audioDesbloqueado = true;
+        })
+        .catch((error) => {
+          console.warn("iPhone bloqueó el desbloqueo de audio hasta otro toque del usuario:", error);
+        });
+    }
+
     function reproducirSonidoNuevoPedido() {
+      inicializarAudioNotificaciones();
+
+      if (!audioDesbloqueado) {
+        return;
+      }
+
       try {
-        const audio = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
-        audio.volume = 1;
-        audio.play().catch(() => {});
+        audioNotificacion.currentTime = 0;
+        audioNotificacion.play().catch((error) => {
+          console.warn("No se pudo reproducir el sonido de notificación:", error);
+        });
       } catch (error) {
         console.warn("No se pudo reproducir el sonido de notificación:", error);
       }
@@ -1871,6 +1904,7 @@ const loginBox = document.getElementById("loginBox");
 if (loginBox) loginBox.classList.add("hidden");
 
 document.getElementById("panel").classList.remove("hidden");
+inicializarAudioNotificaciones();
 actualizarUIBotonNotificaciones();
 cargarIngredientesAdmin();
 cargarHorarioAdmin();
