@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel privado - Sushi Ange</title>
+  <style>
+    :root {
+      --rojo: #d62828;
+      --rojo-oscuro: #9d0208;
+      --negro: #111111;
+      --gris: #f4f4f4;
+      --gris-2: #e9e9e9;
+      --texto: #1f1f1f;
+      --verde: #25D366;
+      --sombra: 0 10px 28px rgba(0,0,0,.12);
+      --radio: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(214,40,40,.14), transparent 32%),
+        linear-gradient(180deg, #fff 0%, #f6f6f6 45%, #eeeeee 100%);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #111, #2a2a2a);
+      color: white;
+      text-align: center;
+      padding: 28px 16px;
+      border-bottom-left-radius: 34px;
+      border-bottom-right-radius: 34px;
+      box-shadow: var(--sombra);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 30px;
+      text-transform: uppercase;
+    }
+
+    header p {
+      margin: 8px 0 0;
+      color: #eee;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: auto;
+      padding: 18px 14px 40px;
+    }
+
+    .card {
+      background: rgba(255,255,255,.96);
+      border-radius: var(--radio);
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--sombra);
+      border: 1px solid rgba(0,0,0,.05);
+    }
+
+    .login {
+      max-width: 420px;
+      margin: 40px auto;
+    }
+
+    label {
+      display: block;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #d7d7d7;
+      border-radius: 14px;
+      font-size: 15px;
+      outline: none;
+      background: white;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--rojo);
+      box-shadow: 0 0 0 4px rgba(214,40,40,.10);
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 13px 15px;
+      font-weight: 900;
+      cursor: pointer;
+      font-size: 15px;
+      transition: transform .12s ease, opacity .12s ease;
+    }
+
+    button:active { transform: scale(.98); }
+
+    .primary {
+      background: linear-gradient(135deg, var(--rojo), var(--rojo-oscuro));
+      color: white;
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .btn-soft {
+      background: #eee;
+      color: #111;
+    }
+
+    .btn-delete {
+      background: #fff1f1;
+      color: var(--rojo);
+      border: 1px solid rgba(214,40,40,.18);
+      padding: 8px 10px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+
+    .bulk-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn-select {
+      background: #111;
+      color: white;
+    }
+
+    .btn-danger {
+      background: var(--rojo);
+      color: white;
+    }
+
+    .select-box {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      padding: 8px 10px;
+      background: #fff1f1;
+      border: 1px solid rgba(214,40,40,.18);
+      border-radius: 12px;
+      font-weight: 800;
+      color: var(--rojo);
+    }
+
+    .select-box.active {
+      display: flex;
+    }
+
+    .select-box input {
+      width: auto;
+      transform: scale(1.2);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      background: white;
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: var(--sombra);
+      border: 1px solid #eee;
+    }
+
+    .stat span {
+      display: block;
+      color: #555;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .stat strong {
+      color: var(--rojo);
+      font-size: 26px;
+    }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .mini-list {
+      margin: 0;
+      padding-left: 18px;
+      line-height: 1.8;
+    }
+
+    .mini-list strong {
+      color: var(--rojo);
+    }
+
+
+    .resumen-dia-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .resumen-dia-head h2 {
+      margin: 0;
+    }
+
+    .resumen-dia-toggle {
+      background: #111;
+      color: white;
+      white-space: nowrap;
+    }
+
+    .resumen-dia-body {
+      display: none;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #eee;
+    }
+
+    .resumen-dia-body.active {
+      display: block;
+    }
+
+    .resumen-dia-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .resumen-dia-box {
+      background: #fff8e8;
+      border: 1px solid #f0d28a;
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .resumen-dia-box span {
+      display: block;
+      color: #7a5300;
+      font-weight: 800;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .resumen-dia-box strong {
+      color: var(--rojo);
+      font-size: 28px;
+    }
+
+    .resumen-dia-note {
+      margin-top: 10px;
+      color: #666;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 760px) {
+      .resumen-dia-grid { grid-template-columns: 1fr; }
+      .resumen-dia-head { flex-direction: column; align-items: stretch; }
+    }
+
+
+
+    .resumen-bebidas-box {
+      background: #eef8ff;
+      border: 1px solid #9ed8ff;
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .resumen-bebidas-box span {
+      display: block;
+      color: #075985;
+      font-weight: 800;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .resumen-bebidas-box strong {
+      color: #0369a1;
+      font-size: 28px;
+    }
+
+    .compensacion-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr 2fr auto;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 14px;
+    }
+
+    .compensacion-form button {
+      background: linear-gradient(135deg, var(--rojo), var(--rojo-oscuro));
+      color: white;
+      white-space: nowrap;
+    }
+
+    .compensacion-lista {
+      display: grid;
+      gap: 8px;
+    }
+
+    .compensacion-item {
+      background: #f8f8f8;
+      border: 1px solid #eee;
+      border-radius: 14px;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .compensacion-monto.positivo {
+      color: #168f47;
+      font-weight: 900;
+    }
+
+    .compensacion-monto.negativo {
+      color: var(--rojo);
+      font-weight: 900;
+    }
+
+    @media (max-width: 860px) {
+      .compensacion-form,
+      .compensacion-item {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+    .resumen-toggle-card {
+      overflow: hidden;
+    }
+
+    .resumen-toggle-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .resumen-toggle-head h2 {
+      margin: 0;
+    }
+
+    .resumen-toggle-btn {
+      background: #111;
+      color: white;
+      white-space: nowrap;
+    }
+
+    .resumen-toggle-body {
+      display: none;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #eee;
+    }
+
+    .resumen-toggle-body.active {
+      display: block;
+    }
+
+    .resumen-produccion-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .resumen-produccion-box {
+      background: #fff8e8;
+      border: 1px solid #f0d28a;
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .resumen-produccion-box span {
+      display: block;
+      color: #7a5300;
+      font-weight: 800;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .resumen-produccion-box strong {
+      color: var(--rojo);
+      font-size: 28px;
+    }
+
+    .resumen-dia-note {
+      margin-top: 10px;
+      color: #666;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 860px) {
+      .resumen-produccion-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 520px) {
+      .resumen-produccion-grid { grid-template-columns: 1fr; }
+      .resumen-toggle-head { flex-direction: column; align-items: stretch; }
+    }
+
+    .pedido {
+      background: white;
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--sombra);
+      border: 1px solid #eee;
+    }
+
+    .pedido-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
+
+    .pedido h3 {
+      margin: 0;
+      color: var(--rojo);
+      font-size: 19px;
+    }
+
+    .pedido-total {
+      font-weight: 900;
+      font-size: 20px;
+      color: var(--rojo);
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .pedido-actions {
+      display: grid;
+      gap: 8px;
+      justify-items: end;
+    }
+
+    .producto {
+      padding: 10px;
+      background: #f8f8f8;
+      border-radius: 14px;
+      margin-top: 8px;
+    }
+
+    .producto strong {
+      color: #111;
+    }
+
+    .detalle-roll {
+      margin: 5px 0;
+      line-height: 1.35;
+    }
+
+    .muted {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .empty {
+      background: white;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: var(--sombra);
+    }
+
+    .error {
+      color: var(--rojo);
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    .hidden { display: none; }
+
+    @media (max-width: 860px) {
+      .toolbar { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .analysis-grid { grid-template-columns: 1fr; }
+      .pedido-head { flex-direction: column; }
+      .pedido-actions { justify-items: start; }
+      header h1 { font-size: 25px; }
+    }
+
+    @media (max-width: 520px) {
+      .stats { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <!-- PWA / iPhone installable app -->
+  <meta name="theme-color" content="#111111" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Sushi Ange" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+</head>
+<body>
+  <header>
+    <h1>Panel privado</h1>
+    <p>Ventas, pedidos y análisis de Sushi Ange</p>
+  </header>
+
+  <main>
+    <section id="loginBox" class="card login">
+      <h2>Ingresar</h2>
+      <label>Clave</label>
+      <input id="clave" type="password" placeholder="Ingresa tu clave" />
+      <button class="primary" onclick="entrar()">Entrar</button>
+      <div id="loginError" class="error"></div>
+    </section>
+
+    <section id="panel" class="hidden">
+      <div class="card">
+        <h2>Pedidos</h2>
+        <div class="toolbar">
+          <div>
+            <label>Fecha</label>
+            <input id="fecha" type="date" />
+          </div>
+          <button class="btn-soft" onclick="cargarPedidos()">Actualizar</button>
+          <button class="btn-soft" onclick="salir()">Salir</button>
+        </div>
+
+        <div class="bulk-actions">
+          <button id="btnModoSeleccion" class="btn-select" onclick="activarSeleccionPedidos()">Seleccionar pedidos</button>
+          <button id="btnSeleccionarTodos" class="btn-soft hidden" onclick="seleccionarTodosPedidos()">Seleccionar todos</button>
+          <button id="btnEliminarSeleccionados" class="btn-danger hidden" onclick="eliminarPedidosSeleccionados()">Eliminar seleccionados</button>
+          <button id="btnCancelarSeleccion" class="btn-soft hidden" onclick="cancelarSeleccionPedidos()">Cancelar selección</button>
+        </div>
+      </div>
+
+
+      <div class="card resumen-toggle-card">
+        <div class="resumen-toggle-head" onclick="toggleResumenFinanciero()">
+          <div>
+            <h2>💰 Resumen financiero</h2>
+            <div class="muted">Ventas, pedidos, ticket promedio, promos e ingredientes extra.</div>
+          </div>
+          <button type="button" class="resumen-toggle-btn">Ver / ocultar</button>
+        </div>
+
+        <div id="resumenFinancieroBody" class="resumen-toggle-body">
+          <div class="stats">
+            <div class="stat">
+              <span>Total del día</span>
+              <strong id="totalDia">$0</strong>
+            </div>
+            <div class="stat">
+              <span>Total semanal</span>
+              <strong id="totalSemana">$0</strong>
+            </div>
+            <div class="stat">
+              <span>Total mensual</span>
+              <strong id="totalMes">$0</strong>
+            </div>
+            <div class="stat">
+              <span>Acumulado total</span>
+              <strong id="totalAcumulado">$0</strong>
+            </div>
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <span>Pedidos del día</span>
+              <strong id="cantidadDia">0</strong>
+            </div>
+            <div class="stat">
+              <span>Ticket promedio</span>
+              <strong id="ticketPromedio">$0</strong>
+            </div>
+            <div class="stat">
+              <span>Promo más vendida</span>
+              <strong id="promoMasVendida">-</strong>
+            </div>
+            <div class="stat">
+              <span>Ingredientes extra</span>
+              <strong id="extrasTotal">$0</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card resumen-toggle-card">
+        <div class="resumen-toggle-head" onclick="toggleCompensacion()">
+          <div>
+            <h2>⚖️ Compensación</h2>
+            <div class="muted">Ajustes manuales del resumen de sushi: descuentos o cobros extra informales.</div>
+          </div>
+          <button type="button" class="resumen-toggle-btn">Ver / ocultar</button>
+        </div>
+
+        <div id="compensacionBody" class="resumen-toggle-body">
+          <div class="compensacion-form">
+            <div>
+              <label>Tipo</label>
+              <select id="compensacionTipo">
+                <option value="descuento">Descuento / quitar plata</option>
+                <option value="extra">Extra / agregar plata</option>
+              </select>
+            </div>
+
+            <div>
+              <label>Monto</label>
+              <input id="compensacionMonto" type="number" min="0" step="100" placeholder="Ej: 1000" />
+            </div>
+
+            <div>
+              <label>Motivo</label>
+              <input id="compensacionMotivo" placeholder="Ej: descuento amigo, agregado informal..." />
+            </div>
+
+            <button type="button" onclick="agregarCompensacion()">Agregar</button>
+          </div>
+
+          <div class="resumen-dia-grid" style="margin-bottom:12px;">
+            <div class="resumen-dia-box">
+              <span>Compensación del día</span>
+              <strong id="compensacionTotalDia">$0</strong>
+            </div>
+            <div class="resumen-dia-box">
+              <span>Total sushi ajustado</span>
+              <strong id="totalDiaAjustado">$0</strong>
+            </div>
+            <div class="resumen-dia-box">
+              <span>Registros</span>
+              <strong id="compensacionCantidadDia">0</strong>
+            </div>
+          </div>
+
+          <div id="compensacionesLista" class="compensacion-lista">
+            <div class="muted">No hay compensaciones para esta fecha.</div>
+          </div>
+
+          <div class="resumen-dia-note">
+            La compensación afecta solo el resumen financiero de sushi. No modifica pedidos ni inventario.
+          </div>
+        </div>
+      </div>
+
+      <div class="card resumen-toggle-card">
+        <div class="resumen-toggle-head" onclick="toggleResumenBebidas()">
+          <div>
+            <h2>🥤 Resumen financiero de bebidas</h2>
+            <div class="muted">Dinero de bebidas separado del resumen de sushi.</div>
+          </div>
+          <button type="button" class="resumen-toggle-btn">Ver / ocultar</button>
+        </div>
+
+        <div id="resumenBebidasBody" class="resumen-toggle-body">
+          <div class="resumen-produccion-grid">
+            <div class="resumen-bebidas-box">
+              <span>Bebidas del día</span>
+              <strong id="bebidasTotalDia">$0</strong>
+            </div>
+
+            <div class="resumen-bebidas-box">
+              <span>Bebidas semanal</span>
+              <strong id="bebidasTotalSemana">$0</strong>
+            </div>
+
+            <div class="resumen-bebidas-box">
+              <span>Bebidas mensual</span>
+              <strong id="bebidasTotalMes">$0</strong>
+            </div>
+
+            <div class="resumen-bebidas-box">
+              <span>Bebidas acumulado</span>
+              <strong id="bebidasTotalAcumulado">$0</strong>
+            </div>
+
+            <div class="resumen-bebidas-box">
+              <span>Unidades del día</span>
+              <strong id="bebidasUnidadesDia">0</strong>
+            </div>
+
+            <div class="resumen-bebidas-box">
+              <span>Bebida más vendida</span>
+              <strong id="bebidaMasVendida">-</strong>
+            </div>
+          </div>
+
+          <div class="resumen-dia-note">
+            Estos montos corresponden sólo a bebidas y no se suman al resumen financiero principal.
+          </div>
+        </div>
+      </div>
+
+      <div class="card resumen-toggle-card">
+        <div class="resumen-toggle-head" onclick="toggleResumenProduccion()">
+          <div>
+            <h2>📊 Resumen de producción</h2>
+            <div class="muted">Rolls, piezas, hand rolls y sushi burgers realizados en la fecha seleccionada.</div>
+          </div>
+          <button type="button" class="resumen-toggle-btn">Ver / ocultar</button>
+        </div>
+
+        <div id="resumenProduccionBody" class="resumen-toggle-body">
+          <div class="resumen-produccion-grid">
+            <div class="resumen-produccion-box">
+              <span>Rolls preparados</span>
+              <strong id="resumenRolls">0</strong>
+            </div>
+
+            <div class="resumen-produccion-box">
+              <span>Piezas hechas</span>
+              <strong id="resumenPiezas">0</strong>
+            </div>
+
+            <div class="resumen-produccion-box">
+              <span>Hand rolls</span>
+              <strong id="resumenHandrolls">0</strong>
+            </div>
+
+            <div class="resumen-produccion-box">
+              <span>Sushi burgers</span>
+              <strong id="resumenSushiburgers">0</strong>
+            </div>
+          </div>
+
+          <div class="resumen-dia-note">
+            Se considera 1 roll = 10 piezas. Hand Rolls y Sushi Burgers se cuentan aparte.
+          </div>
+        </div>
+      </div>
+
+      <div class="analysis-grid">
+        <div class="card">
+          <h2>Top promociones</h2>
+          <ol id="topPromos" class="mini-list"></ol>
+        </div>
+
+        <div class="card">
+          <h2>Ingredientes más pedidos</h2>
+          <ol id="topIngredientes" class="mini-list"></ol>
+        </div>
+      </div>
+
+      <div id="pedidosLista" style="margin-top:16px;"></div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      query,
+      orderBy,
+      doc,
+      deleteDoc,
+      addDoc,
+      serverTimestamp,
+      runTransaction
+    } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDUMySSnAS5mpEFtncooBFn-268Z8LuD5Y",
+      authDomain: "menu-sushi-ange.firebaseapp.com",
+      projectId: "menu-sushi-ange",
+      storageBucket: "menu-sushi-ange.firebasestorage.app",
+      messagingSenderId: "1073224165075",
+      appId: "1:1073224165075:web:913b3d109905faf6b61626"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const CLAVE_ADMIN = "090605";
+    let pedidosGlobales = [];
+    let pedidosDiaActual = [];
+    let compensacionesGlobales = [];
+    let compensacionesDiaActual = [];
+    let modoSeleccion = false;
+    let pedidosSeleccionados = new Set();
+
+    function formatCLP(valor) {
+      return "$" + Number(valor || 0).toLocaleString("es-CL");
+    }
+
+    function limpiarIngrediente(nombre) {
+      return String(nombre || "")
+        .replace(/\s*\(\+\$?1\.?300\)\s*/g, "")
+        .replace(/\s*\(\+1300\)\s*/g, "")
+        .trim();
+    }
+
+    function getFechaObj(pedido) {
+      if (pedido.fechaISO) return new Date(pedido.fechaISO);
+      if (pedido.creadoEn && typeof pedido.creadoEn.toDate === "function") return pedido.creadoEn.toDate();
+      if (pedido.fecha) return new Date(pedido.fecha);
+      return null;
+    }
+
+    function fechaLocalYYYYMMDD(fecha) {
+      if (!fecha) return "";
+      return fecha.toLocaleDateString("en-CA", { timeZone: "America/Santiago" });
+    }
+
+    function obtenerFechaLocalPedido(pedido) {
+      return fechaLocalYYYYMMDD(getFechaObj(pedido));
+    }
+
+    function obtenerHoraLocalPedido(pedido) {
+      const fecha = getFechaObj(pedido);
+      if (!fecha) return "";
+      return fecha.toLocaleTimeString("es-CL", {
+        timeZone: "America/Santiago",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function inicioSemanaLunes(fechaString) {
+      const [y, m, d] = fechaString.split("-").map(Number);
+      const fecha = new Date(Date.UTC(y, m - 1, d));
+      const dia = fecha.getUTCDay() || 7;
+      fecha.setUTCDate(fecha.getUTCDate() - dia + 1);
+      return fecha.toISOString().slice(0, 10);
+    }
+
+    function finSemanaDomingo(fechaString) {
+      const ini = inicioSemanaLunes(fechaString);
+      const [y, m, d] = ini.split("-").map(Number);
+      const fecha = new Date(Date.UTC(y, m - 1, d));
+      fecha.setUTCDate(fecha.getUTCDate() + 6);
+      return fecha.toISOString().slice(0, 10);
+    }
+
+    function mismoMes(fechaPedido, fechaBase) {
+      return fechaPedido.slice(0, 7) === fechaBase.slice(0, 7);
+    }
+
+    function entreFechas(fecha, desde, hasta) {
+      return fecha >= desde && fecha <= hasta;
+    }
+
+    function esProductoBebida(prod) {
+      return prod?.tipo === "bebida" || String(prod?.categoria || "").toLowerCase() === "bebida";
+    }
+
+    function bebidasDelPedidoParaReponer(pedido) {
+      const mapa = new Map();
+
+      function sumarBebida(id, nombre, cantidad) {
+        if (!id) {
+          console.warn("Bebida sin bebidaId, no se puede reponer automáticamente:", { nombre, cantidad });
+          return;
+        }
+
+        if (!mapa.has(id)) {
+          mapa.set(id, {
+            bebidaId: id,
+            nombre: nombre || "Bebida",
+            cantidad: 0
+          });
+        }
+
+        mapa.get(id).cantidad += Number(cantidad || 1);
+      }
+
+      (pedido.productos || []).forEach(prod => {
+        if (esProductoBebida(prod)) {
+          sumarBebida(prod.bebidaId || "", prod.nombre || "Bebida", prod.cantidad || 1);
+          return;
+        }
+
+        if (prod?.tipo === "promoExpress") {
+          const bebidasIncluidas = prod.bebidasIncluidas || (prod.bebidaIncluida ? [prod.bebidaIncluida] : []);
+
+          bebidasIncluidas.filter(Boolean).forEach(bebida => {
+            sumarBebida(
+              bebida.bebidaId || "",
+              bebida.texto || `${bebida.nombre || "Bebida"} ${bebida.formato || ""}`.trim(),
+              bebida.cantidad || 1
+            );
+          });
+        }
+      });
+
+      return Array.from(mapa.values());
+    }
+
+    async function reponerBebidasDePedido(pedido) {
+      const bebidasReponer = bebidasDelPedidoParaReponer(pedido);
+
+      if (!bebidasReponer.length) {
+        return {
+          repuestas: 0,
+          detalle: []
+        };
+      }
+
+      await runTransaction(db, async (transaction) => {
+        const items = bebidasReponer.map(item => ({
+          ...item,
+          ref: doc(db, "bebidas", item.bebidaId)
+        }));
+
+        const snaps = [];
+
+        for (const item of items) {
+          const snap = await transaction.get(item.ref);
+          snaps.push({ ...item, snap });
+        }
+
+        for (const item of snaps) {
+          if (!item.snap.exists()) {
+            throw new Error(`No existe la bebida en inventario: ${item.nombre}`);
+          }
+
+          const data = item.snap.data();
+          const stockActual = Number(data.stock || 0);
+
+          transaction.update(item.ref, {
+            stock: stockActual + item.cantidad,
+            actualizadoEn: new Date().toISOString()
+          });
+        }
+      });
+
+      return {
+        repuestas: bebidasReponer.reduce((acc, b) => acc + b.cantidad, 0),
+        detalle: bebidasReponer
+      };
+    }
+
+    async function eliminarPedidoConReposicion(pedido) {
+      const resultado = await reponerBebidasDePedido(pedido);
+      await deleteDoc(doc(db, "pedidos", pedido.id));
+      return resultado;
+    }
+
+    function totalProducto(prod) {
+      return Number(prod?.precioFinal || 0);
+    }
+
+    function descuentoProducto(prod) {
+      return Number(prod?.descuentoPromoA || 0);
+    }
+
+    function precioPromoBebidaFallback(bebida = {}) {
+      const formato = String(bebida.formato || bebida.texto || bebida.nombre || "").toLowerCase();
+
+      if (formato.includes("lata ccu")) return 1000;
+      if (formato.includes("lata coca")) return 1200;
+      if (formato.includes("591") || formato.includes("1/2")) return 1500;
+      if (formato.includes("1 litro") || formato.includes("1l")) return 1800;
+
+      return 0;
+    }
+
+    function totalBebidasIncluidasPromo(prod) {
+      if (prod?.tipo !== "promoExpress") return 0;
+
+      const bebidasIncluidas = prod.bebidasIncluidas || (prod.bebidaIncluida ? [prod.bebidaIncluida] : []);
+
+      return bebidasIncluidas.filter(Boolean).reduce((acc, bebida) => {
+        const cantidad = Number(bebida.cantidad || 1);
+        const precioUnitario = Number(bebida.precioPromo || precioPromoBebidaFallback(bebida) || 0);
+        return acc + precioUnitario * cantidad;
+      }, 0);
+    }
+
+    function totalSushiPedido(pedido) {
+      return (pedido.productos || []).reduce((acc, prod) => {
+        if (esProductoBebida(prod)) return acc;
+
+        const totalBebidasPromo = totalBebidasIncluidasPromo(prod);
+        return acc + totalProducto(prod) - descuentoProducto(prod) - totalBebidasPromo;
+      }, 0);
+    }
+
+    function totalBebidasPedido(pedido) {
+      return (pedido.productos || []).reduce((acc, prod) => {
+        if (esProductoBebida(prod)) {
+          return acc + totalProducto(prod);
+        }
+
+        return acc + totalBebidasIncluidasPromo(prod);
+      }, 0);
+    }
+
+    function sumarPedidos(pedidos) {
+      return pedidos.reduce((acc, p) => acc + totalSushiPedido(p), 0);
+    }
+
+    function sumarBebidas(pedidos) {
+      return pedidos.reduce((acc, p) => acc + totalBebidasPedido(p), 0);
+    }
+
+    function valorCompensacion(comp) {
+      const monto = Math.abs(Number(comp?.monto || 0));
+      const tipo = String(comp?.tipo || "").toLowerCase();
+      return tipo === "descuento" ? -monto : monto;
+    }
+
+    function sumarCompensaciones(comps) {
+      return (comps || []).reduce((acc, comp) => acc + valorCompensacion(comp), 0);
+    }
+
+    function obtenerFechaLocalCompensacion(comp) {
+      if (comp.fechaLocal) return comp.fechaLocal;
+      if (comp.fechaISO) return fechaLocalYYYYMMDD(new Date(comp.fechaISO));
+      if (comp.creadoEn && typeof comp.creadoEn.toDate === "function") {
+        return fechaLocalYYYYMMDD(comp.creadoEn.toDate());
+      }
+      return "";
+    }
+
+    function contarUnidadesBebidas(pedidos) {
+      return pedidos.reduce((acc, pedido) => {
+        return acc + (pedido.productos || []).reduce((sub, prod) => {
+          if (esProductoBebida(prod)) return sub + Number(prod.cantidad || 1);
+
+          if (prod?.tipo === "promoExpress") {
+            const bebidasIncluidas = prod.bebidasIncluidas || (prod.bebidaIncluida ? [prod.bebidaIncluida] : []);
+            return sub + bebidasIncluidas.filter(Boolean).reduce((a, b) => a + Number(b.cantidad || 1), 0);
+          }
+
+          return sub;
+        }, 0);
+      }, 0);
+    }
+
+    function contarBebidas(pedidos) {
+      const conteo = {};
+      pedidos.forEach(pedido => {
+        (pedido.productos || []).forEach(prod => {
+          if (!esProductoBebida(prod)) return;
+
+          const nombre = prod.nombre || "Bebida";
+          conteo[nombre] = (conteo[nombre] || 0) + Number(prod.cantidad || 1);
+        });
+      });
+      return Object.entries(conteo).sort((a, b) => b[1] - a[1]);
+    }
+
+    function contarPromos(pedidos) {
+      const conteo = {};
+      pedidos.forEach(pedido => {
+        (pedido.productos || []).forEach(prod => {
+          if (esProductoBebida(prod)) return;
+
+          const nombre = prod.nombre || "Sin nombre";
+          conteo[nombre] = (conteo[nombre] || 0) + Number(prod.cantidad || 1);
+        });
+      });
+      return Object.entries(conteo).sort((a, b) => b[1] - a[1]);
+    }
+
+    function contarIngredientes(pedidos) {
+      const conteo = {};
+      pedidos.forEach(pedido => {
+        (pedido.productos || []).forEach(prod => {
+          if (esProductoBebida(prod)) return;
+
+          (prod.detalleRolls || []).forEach(roll => {
+            (roll.ingredientes || []).forEach(ing => {
+              const limpio = limpiarIngrediente(ing);
+              conteo[limpio] = (conteo[limpio] || 0) + 1;
+            });
+          });
+        });
+      });
+      return Object.entries(conteo).sort((a, b) => b[1] - a[1]);
+    }
+
+    function calcularExtras(pedidos) {
+      let total = 0;
+      pedidos.forEach(pedido => {
+        (pedido.productos || []).forEach(prod => {
+          if (esProductoBebida(prod)) return;
+
+          total += Number(prod.extraSalmon || 0);
+          total += Number(prod.extraCuarto || 0);
+        });
+      });
+      return total;
+    }
+
+    function renderTopLista(id, entradas) {
+      const el = document.getElementById(id);
+      if (!entradas.length) {
+        el.innerHTML = "<li>No hay datos.</li>";
+        return;
+      }
+      el.innerHTML = entradas.slice(0, 5).map(([nombre, cantidad]) => (
+        `<li><strong>${nombre}</strong>: ${cantidad}</li>`
+      )).join("");
+    }
+
+
+
+    window.toggleResumenFinanciero = function toggleResumenFinanciero() {
+      const body = document.getElementById("resumenFinancieroBody");
+      if (body) body.classList.toggle("active");
+    };
+
+    window.toggleResumenProduccion = function toggleResumenProduccion() {
+      const body = document.getElementById("resumenProduccionBody");
+      if (body) body.classList.toggle("active");
+    };
+
+    window.toggleResumenBebidas = function toggleResumenBebidas() {
+      const body = document.getElementById("resumenBebidasBody");
+      if (body) body.classList.toggle("active");
+    };
+
+    window.toggleCompensacion = function toggleCompensacion() {
+      const body = document.getElementById("compensacionBody");
+      if (body) body.classList.toggle("active");
+    };
+
+    function esHandrollProducto(prod) {
+      const nombre = String(prod?.nombre || "").toLowerCase();
+      const categoria = String(prod?.categoria || "").toLowerCase();
+      const piezas = String(prod?.piezas || "").toLowerCase();
+
+      return categoria === "handroll" ||
+        nombre.includes("hand roll") ||
+        nombre.includes("handroll") ||
+        piezas.includes("hand roll");
+    }
+
+    function esSushiburgerProducto(prod) {
+      const nombre = String(prod?.nombre || "").toLowerCase();
+      const categoria = String(prod?.categoria || "").toLowerCase();
+      const piezas = String(prod?.piezas || "").toLowerCase();
+
+      return categoria === "sushiburger" ||
+        nombre.includes("sushi burger") ||
+        nombre.includes("sushiburger") ||
+        piezas.includes("sushi burger") ||
+        piezas.includes("sushi burgers");
+    }
+
+    function esRollContableComoPiezas(prod, roll) {
+      const nombreProducto = String(prod?.nombre || "").toLowerCase();
+      const categoria = String(prod?.categoria || "").toLowerCase();
+      const piezasProducto = String(prod?.piezas || "").toLowerCase();
+      const nombreRoll = String(roll?.nombre || "").toLowerCase();
+
+      if (categoria === "handroll" || categoria === "sushiburger") return false;
+      if (nombreProducto.includes("hand roll") || nombreProducto.includes("sushi burger")) return false;
+      if (piezasProducto.includes("hand roll") || piezasProducto.includes("sushi burger")) return false;
+      if (nombreRoll.includes("hand roll") || nombreRoll.includes("sushi burger")) return false;
+
+      return true;
+    }
+
+    function calcularResumenProduccionDia(pedidos) {
+      let rolls = 0;
+      let piezas = 0;
+      let handrolls = 0;
+      let sushiburgers = 0;
+
+      pedidos.forEach(pedido => {
+        (pedido.productos || []).forEach(prod => {
+          const cantidad = Number(prod.cantidad || 1);
+          const detalleRolls = prod.detalleRolls || [];
+
+          if (esHandrollProducto(prod)) {
+            handrolls += cantidad;
+            return;
+          }
+
+          if (esSushiburgerProducto(prod)) {
+            const cantidadPorPiezas = String(prod.piezas || "").includes("2") ? 2 : 1;
+            sushiburgers += cantidad * cantidadPorPiezas;
+            return;
+          }
+
+          if (detalleRolls.length) {
+            detalleRolls.forEach(roll => {
+              if (esRollContableComoPiezas(prod, roll)) {
+                rolls += 1;
+                piezas += 10;
+              }
+            });
+          }
+        });
+      });
+
+      return { rolls, piezas, handrolls, sushiburgers };
+    }
+
+    function actualizarResumenDia(pedidosDia) {
+      const resumen = calcularResumenProduccionDia(pedidosDia);
+
+      const rolls = document.getElementById("resumenRolls");
+      const piezas = document.getElementById("resumenPiezas");
+      const handrolls = document.getElementById("resumenHandrolls");
+      const sushiburgers = document.getElementById("resumenSushiburgers");
+
+      if (rolls) rolls.textContent = resumen.rolls;
+      if (piezas) piezas.textContent = resumen.piezas;
+      if (handrolls) handrolls.textContent = resumen.handrolls;
+      if (sushiburgers) sushiburgers.textContent = resumen.sushiburgers;
+    }
+
+
+    function actualizarAnalisis(pedidosDia) {
+      const fechaSeleccionada = document.getElementById("fecha").value;
+      const semanaInicio = inicioSemanaLunes(fechaSeleccionada);
+      const semanaFin = finSemanaDomingo(fechaSeleccionada);
+
+      const pedidosSemana = pedidosGlobales.filter(p => {
+        const f = obtenerFechaLocalPedido(p);
+        return entreFechas(f, semanaInicio, semanaFin);
+      });
+
+      const pedidosMes = pedidosGlobales.filter(p => {
+        const f = obtenerFechaLocalPedido(p);
+        return mismoMes(f, fechaSeleccionada);
+      });
+
+      const compensacionesSemana = compensacionesGlobales.filter(c => {
+        const f = obtenerFechaLocalCompensacion(c);
+        return entreFechas(f, semanaInicio, semanaFin);
+      });
+
+      const compensacionesMes = compensacionesGlobales.filter(c => {
+        const f = obtenerFechaLocalCompensacion(c);
+        return mismoMes(f, fechaSeleccionada);
+      });
+
+      const totalSushiDiaBase = sumarPedidos(pedidosDia);
+      const totalSushiSemanaBase = sumarPedidos(pedidosSemana);
+      const totalSushiMesBase = sumarPedidos(pedidosMes);
+      const totalSushiAcumuladoBase = sumarPedidos(pedidosGlobales);
+
+      const compensacionDia = sumarCompensaciones(compensacionesDiaActual);
+      const compensacionSemana = sumarCompensaciones(compensacionesSemana);
+      const compensacionMes = sumarCompensaciones(compensacionesMes);
+      const compensacionAcumulada = sumarCompensaciones(compensacionesGlobales);
+
+      const totalDia = totalSushiDiaBase + compensacionDia;
+      const totalSemana = totalSushiSemanaBase + compensacionSemana;
+      const totalMes = totalSushiMesBase + compensacionMes;
+      const totalAcumulado = totalSushiAcumuladoBase + compensacionAcumulada;
+
+      const bebidasDia = sumarBebidas(pedidosDia);
+      const bebidasSemana = sumarBebidas(pedidosSemana);
+      const bebidasMes = sumarBebidas(pedidosMes);
+      const bebidasAcumulado = sumarBebidas(pedidosGlobales);
+      const bebidasUnidadesDia = contarUnidadesBebidas(pedidosDia);
+      const bebidasRank = contarBebidas(pedidosDia);
+      const bebidaMasVendidaTexto = bebidasRank.length ? `${bebidasRank[0][0]} (${bebidasRank[0][1]})` : "-";
+
+      const pedidosConSushiDia = pedidosDia.filter(p => totalSushiPedido(p) > 0);
+      const ticketPromedio = pedidosConSushiDia.length ? Math.round(totalDia / pedidosConSushiDia.length) : 0;
+
+      const promos = contarPromos(pedidosDia);
+      const promoMasVendida = promos.length ? `${promos[0][0]} (${promos[0][1]})` : "-";
+
+      document.getElementById("totalDia").textContent = formatCLP(totalDia);
+      document.getElementById("totalSemana").textContent = formatCLP(totalSemana);
+      document.getElementById("totalMes").textContent = formatCLP(totalMes);
+      document.getElementById("totalAcumulado").textContent = formatCLP(totalAcumulado);
+      document.getElementById("cantidadDia").textContent = pedidosDia.length;
+      document.getElementById("ticketPromedio").textContent = formatCLP(ticketPromedio);
+      document.getElementById("promoMasVendida").textContent = promoMasVendida;
+      document.getElementById("extrasTotal").textContent = formatCLP(calcularExtras(pedidosDia));
+
+      document.getElementById("bebidasTotalDia").textContent = formatCLP(bebidasDia);
+      document.getElementById("bebidasTotalSemana").textContent = formatCLP(bebidasSemana);
+      document.getElementById("bebidasTotalMes").textContent = formatCLP(bebidasMes);
+      document.getElementById("bebidasTotalAcumulado").textContent = formatCLP(bebidasAcumulado);
+      document.getElementById("bebidasUnidadesDia").textContent = bebidasUnidadesDia;
+      document.getElementById("bebidaMasVendida").textContent = bebidaMasVendidaTexto;
+
+      const compTotalEl = document.getElementById("compensacionTotalDia");
+      const totalAjustadoEl = document.getElementById("totalDiaAjustado");
+      const compCantidadEl = document.getElementById("compensacionCantidadDia");
+
+      if (compTotalEl) compTotalEl.textContent = formatCLP(compensacionDia);
+      if (totalAjustadoEl) totalAjustadoEl.textContent = formatCLP(totalDia);
+      if (compCantidadEl) compCantidadEl.textContent = compensacionesDiaActual.length;
+
+      renderCompensacionesDia();
+
+      actualizarResumenDia(pedidosDia);
+
+      renderTopLista("topPromos", contarPromos(pedidosDia));
+      renderTopLista("topIngredientes", contarIngredientes(pedidosDia));
+    }
+
+    function renderCompensacionesDia() {
+      const lista = document.getElementById("compensacionesLista");
+      if (!lista) return;
+
+      if (!compensacionesDiaActual.length) {
+        lista.innerHTML = `<div class="muted">No hay compensaciones para esta fecha.</div>`;
+        return;
+      }
+
+      lista.innerHTML = compensacionesDiaActual.map(comp => {
+        const valor = valorCompensacion(comp);
+        const clase = valor < 0 ? "negativo" : "positivo";
+        const signo = valor > 0 ? "+" : "";
+
+        return `
+          <div class="compensacion-item">
+            <div>
+              <strong>${comp.motivo || "Sin motivo"}</strong>
+              <div class="muted">${comp.tipo === "descuento" ? "Descuento" : "Extra"} · ${obtenerFechaLocalCompensacion(comp)}</div>
+            </div>
+            <div class="compensacion-monto ${clase}">${signo}${formatCLP(valor)}</div>
+            <button class="btn-delete" onclick="eliminarCompensacion('${comp.id}')">Eliminar</button>
+          </div>
+        `;
+      }).join("");
+    }
+
+    window.agregarCompensacion = async function agregarCompensacion() {
+      const tipo = document.getElementById("compensacionTipo")?.value || "descuento";
+      const monto = Math.abs(Number(document.getElementById("compensacionMonto")?.value || 0));
+      const motivo = document.getElementById("compensacionMotivo")?.value.trim() || "";
+
+      if (!monto || monto <= 0) {
+        alert("Ingresa un monto válido.");
+        return;
+      }
+
+      if (!motivo) {
+        alert("Ingresa un motivo para la compensación.");
+        return;
+      }
+
+      const fechaSeleccionada = document.getElementById("fecha").value || fechaHoyChile();
+
+      try {
+        await addDoc(collection(db, "compensaciones_admin"), {
+          tipo,
+          monto,
+          motivo,
+          fechaLocal: fechaSeleccionada,
+          fechaISO: new Date(`${fechaSeleccionada}T12:00:00`).toISOString(),
+          creadoEn: serverTimestamp()
+        });
+
+        document.getElementById("compensacionMonto").value = "";
+        document.getElementById("compensacionMotivo").value = "";
+        await cargarPedidos();
+      } catch (error) {
+        console.error(error);
+        alert("No se pudo guardar la compensación. Revisa las reglas de Firestore para compensaciones_admin.");
+      }
+    };
+
+    window.eliminarCompensacion = async function eliminarCompensacion(id) {
+      const ok = confirm("¿Eliminar esta compensación? Esta acción no modifica pedidos ni inventario.");
+      if (!ok) return;
+
+      try {
+        await deleteDoc(doc(db, "compensaciones_admin", id));
+        await cargarPedidos();
+      } catch (error) {
+        console.error(error);
+        alert("No se pudo eliminar la compensación. Revisa las reglas de Firestore.");
+      }
+    };
+
+    function renderPedido(pedido) {
+      const productos = pedido.productos || [];
+      const hora = obtenerHoraLocalPedido(pedido);
+      const checked = pedidosSeleccionados.has(pedido.id) ? "checked" : "";
+
+      return `
+        <div class="pedido">
+          <label class="select-box ${modoSeleccion ? "active" : ""}">
+            <input type="checkbox" ${checked} onchange="togglePedidoSeleccionado('${pedido.id}', this.checked)">
+            Seleccionar este pedido
+          </label>
+
+          <div class="pedido-head">
+            <div>
+              <h3>${pedido.cliente || "Cliente no indicado"}</h3>
+              <div class="muted">Hora: ${hora || "No registrada"} · Estado: ${pedido.estado || "nuevo"}</div>
+            </div>
+            <div class="pedido-actions">
+              <div class="pedido-total">${formatCLP(pedido.total)}</div>
+              <div class="muted" style="text-align:right;">
+                Sushi: ${formatCLP(totalSushiPedido(pedido))}<br>
+                Bebidas: ${formatCLP(totalBebidasPedido(pedido))}
+              </div>
+              <button class="btn-delete" onclick="eliminarPedido('${pedido.id}')">🗑️ Eliminar</button>
+            </div>
+          </div>
+
+          ${productos.map(prod => {
+            const esBebida = esProductoBebida(prod);
+
+            return `
+              <div class="producto">
+                <strong>${esBebida ? "🥤 " : ""}${prod.nombre || "Producto"}</strong>
+
+                ${esBebida ? `
+                  <div class="muted"><strong>Cantidad: ${Number(prod.cantidad || 1)}</strong></div>
+                  <div class="muted">Formato: ${prod.piezas || "Bebida"}</div>
+                  <div class="muted">Subtotal bebidas: ${formatCLP(prod.precioFinal || 0)}</div>
+                ` : `
+                  <div class="muted">${prod.piezas || ""}${Number(prod.cantidad || 1) > 1 ? ` · Cantidad: ${Number(prod.cantidad || 1)}` : ""}</div>
+
+                  ${(prod.detalleRolls || []).map(roll => `
+                    <div class="detalle-roll">🍣 ${roll.nombre}: ${(roll.ingredientes || []).map(limpiarIngrediente).join(", ")}</div>
+                  `).join("")}
+
+                  ${prod.extraSalmon ? `<div class="muted">Adicional salmón: ${formatCLP(prod.extraSalmon)}</div>` : ""}
+                  ${prod.extraCuarto ? `<div class="muted">Ingrediente 4 extra: ${formatCLP(prod.extraCuarto)}</div>` : ""}
+                `}
+
+                ${prod.observaciones ? `<div class="muted">Obs: ${prod.observaciones}</div>` : ""}
+                ${prod.obs ? `<div class="muted">Obs: ${prod.obs}</div>` : ""}
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
+    function actualizarBotonesSeleccion() {
+      const ids = [
+        "btnSeleccionarTodos",
+        "btnEliminarSeleccionados",
+        "btnCancelarSeleccion"
+      ];
+
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.toggle("hidden", !modoSeleccion);
+      });
+
+      const btnModo = document.getElementById("btnModoSeleccion");
+      if (btnModo) btnModo.classList.toggle("hidden", modoSeleccion);
+
+      const btnEliminar = document.getElementById("btnEliminarSeleccionados");
+      if (btnEliminar) {
+        const n = pedidosSeleccionados.size;
+        btnEliminar.textContent = n ? `Eliminar seleccionados (${n})` : "Eliminar seleccionados";
+      }
+    }
+
+    window.activarSeleccionPedidos = function activarSeleccionPedidos() {
+      modoSeleccion = true;
+      pedidosSeleccionados.clear();
+      actualizarBotonesSeleccion();
+      renderPedidosDia();
+    };
+
+    window.cancelarSeleccionPedidos = function cancelarSeleccionPedidos() {
+      modoSeleccion = false;
+      pedidosSeleccionados.clear();
+      actualizarBotonesSeleccion();
+      renderPedidosDia();
+    };
+
+    window.togglePedidoSeleccionado = function togglePedidoSeleccionado(id, checked) {
+      if (checked) {
+        pedidosSeleccionados.add(id);
+      } else {
+        pedidosSeleccionados.delete(id);
+      }
+      actualizarBotonesSeleccion();
+    };
+
+    window.seleccionarTodosPedidos = function seleccionarTodosPedidos() {
+      pedidosDiaActual.forEach(p => pedidosSeleccionados.add(p.id));
+      actualizarBotonesSeleccion();
+      renderPedidosDia();
+    };
+
+    window.eliminarPedidosSeleccionados = async function eliminarPedidosSeleccionados() {
+      const cantidad = pedidosSeleccionados.size;
+
+      if (!cantidad) {
+        alert("Selecciona al menos un pedido.");
+        return;
+      }
+
+      const ok = confirm(`¿Seguro que quieres eliminar ${cantidad} pedido(s)? Esta acción no se puede deshacer.`);
+      if (!ok) return;
+
+      try {
+        await Promise.all(
+          Array.from(pedidosSeleccionados).map(id => {
+            const pedido = pedidosGlobales.find(p => p.id === id);
+            return pedido
+              ? eliminarPedidoConReposicion(pedido)
+              : deleteDoc(doc(db, "pedidos", id));
+          })
+        );
+
+        pedidosSeleccionados.clear();
+        modoSeleccion = false;
+        actualizarBotonesSeleccion();
+        await cargarPedidos();
+
+      } catch (error) {
+        console.error(error);
+        alert("No se pudieron eliminar los pedidos seleccionados. Revisa las reglas de Firestore.");
+      }
+    };
+
+    function renderPedidosDia() {
+      const lista = document.getElementById("pedidosLista");
+
+      if (!pedidosDiaActual.length) {
+        lista.innerHTML = `<div class="empty">No hay pedidos para esta fecha.</div>`;
+        return;
+      }
+
+      lista.innerHTML = pedidosDiaActual.map(renderPedido).join("");
+    }
+
+    window.entrar = function entrar() {
+      const clave = document.getElementById("clave").value;
+      const error = document.getElementById("loginError");
+
+      if (clave !== CLAVE_ADMIN) {
+        error.textContent = "Clave incorrecta.";
+        return;
+      }
+
+      sessionStorage.setItem("adminOK", "true");
+      document.getElementById("loginBox").classList.add("hidden");
+      document.getElementById("panel").classList.remove("hidden");
+      cargarPedidos();
+    };
+
+    window.salir = function salir() {
+      sessionStorage.removeItem("adminOK");
+      location.reload();
+    };
+
+    window.eliminarPedido = async function eliminarPedido(id) {
+      const pedido = pedidosGlobales.find(p => p.id === id);
+      const bebidas = pedido ? bebidasDelPedidoParaReponer(pedido) : [];
+
+      const textoBebidas = bebidas.length
+        ? `\n\nSe repondrán al inventario:\n${bebidas.map(b => `• ${b.nombre}: ${b.cantidad}`).join("\n")}`
+        : "\n\nEste pedido no tiene bebidas reponibles registradas.";
+
+      const ok = confirm("¿Seguro que quieres eliminar este pedido? Esta acción no se puede deshacer." + textoBebidas);
+      if (!ok) return;
+
+      try {
+        let resultado = { repuestas: 0, detalle: [] };
+
+        if (pedido) {
+          resultado = await eliminarPedidoConReposicion(pedido);
+        } else {
+          await deleteDoc(doc(db, "pedidos", id));
+        }
+
+        await cargarPedidos();
+
+        if (resultado.repuestas > 0) {
+          alert(`Pedido eliminado. Se repusieron ${resultado.repuestas} bebida(s) al inventario.`);
+        } else {
+          alert("Pedido eliminado. No se repusieron bebidas porque el pedido no tenía bebidas registradas con bebidaId.");
+        }
+
+      } catch (error) {
+        console.error(error);
+        alert("No se pudo eliminar o reponer bebidas. Revisa que las reglas de Firestore permitan escribir en bebidas.");
+      }
+    };
+
+
+    window.cargarPedidos = async function cargarPedidos() {
+      const fechaSeleccionada = document.getElementById("fecha").value;
+      const lista = document.getElementById("pedidosLista");
+
+      lista.innerHTML = `<div class="empty">Cargando pedidos...</div>`;
+
+      try {
+        const q = query(collection(db, "pedidos"), orderBy("fechaISO", "desc"));
+        const snap = await getDocs(q);
+
+        pedidosGlobales = [];
+        snap.forEach(docSnap => {
+          pedidosGlobales.push({ id: docSnap.id, ...docSnap.data() });
+        });
+
+        try {
+          const qComp = query(collection(db, "compensaciones_admin"), orderBy("fechaISO", "desc"));
+          const snapComp = await getDocs(qComp);
+
+          compensacionesGlobales = [];
+          snapComp.forEach(docSnap => {
+            compensacionesGlobales.push({ id: docSnap.id, ...docSnap.data() });
+          });
+        } catch (errorComp) {
+          console.warn("No se pudieron cargar compensaciones:", errorComp);
+          compensacionesGlobales = [];
+        }
+
+        pedidosDiaActual = pedidosGlobales.filter(data => obtenerFechaLocalPedido(data) === fechaSeleccionada);
+        compensacionesDiaActual = compensacionesGlobales.filter(data => obtenerFechaLocalCompensacion(data) === fechaSeleccionada);
+
+        actualizarAnalisis(pedidosDiaActual);
+        actualizarBotonesSeleccion();
+        renderPedidosDia();
+
+      } catch (error) {
+        console.error(error);
+        lista.innerHTML = `<div class="empty">No se pudieron cargar los pedidos. Revisa las reglas de Firestore.</div>`;
+      }
+    };
+
+    function fechaHoyChile() {
+      return new Date().toLocaleDateString("en-CA", { timeZone: "America/Santiago" });
+    }
+
+    document.getElementById("fecha").value = fechaHoyChile();
+
+    if (sessionStorage.getItem("adminOK") === "true") {
+      document.getElementById("loginBox").classList.add("hidden");
+      document.getElementById("panel").classList.remove("hidden");
+      cargarPedidos();
+    }
+  </script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("service-worker.js").catch((error) => {
+          console.warn("No se pudo registrar el modo app:", error);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
